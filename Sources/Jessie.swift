@@ -1,6 +1,6 @@
 //
 //  Jessie.swift
-//  Jeeves
+//  Jessie
 //
 //  Created by Gabriel Lanata on 16/10/16.
 //
@@ -8,8 +8,12 @@
 
 import Foundation
 
-public enum JsonParsingError: Error {
-    case couldNotParseValue(Any, JsonType), indexOutOfBounds(Int, Int), keyNotFound(String)
+public enum JsonError: Error {
+    case couldNotParseRawString(String)
+    case couldNotParseData
+    case couldNotParseValue(Any, JsonType)
+    case indexOutOfBounds(Int, Int)
+    case keyNotFound(String)
 }
 
 public struct Json {
@@ -35,14 +39,18 @@ public struct Json {
         return [UInt8](data)
     }
     
-    public init(_ rawString: String) throws {
-        let data = try rawString.data()
+    public init(rawString: String, enconding: String.Encoding = .utf8) throws {
+        guard let data = rawString.data(using: enconding) else {
+            throw JsonError.couldNotParseRawString(rawString)
+        }
         try self.init(data)
     }
     
-    public func rawString(prettyPrinted: Bool = true) throws -> String {
+    public func rawString(prettyPrinted: Bool = true, enconding: String.Encoding = .utf8) throws -> String {
         let data = try self.data(prettyPrinted: prettyPrinted)
-        let rawString = try String(data: data)
+        guard let rawString = String(data: data, encoding: enconding) else {
+            throw JsonError.couldNotParseData
+        }
         return rawString
     }
     
@@ -94,7 +102,7 @@ public extension Json {
         if let _ = try? self.toInt()        { return .int }
         if let _ = try? self.toDouble()     { return .double }
         if let _ = try? self.toBool()       { return .bool }
-        Log.warning("Unknown Json type detected (\(rawValue))")
+        print("Warning: Unknown Json type detected (\(rawValue))")
         return .unknown
     }
     
@@ -127,7 +135,7 @@ public extension Json {
     public func dive(_ key: String) throws -> Json {
         let dictionary = try self.toDictionary()
         guard let value = dictionary[key] else {
-            throw JsonParsingError.keyNotFound(key)
+            throw JsonError.keyNotFound(key)
         }
         return value
     }
@@ -135,7 +143,7 @@ public extension Json {
     public func dive(_ index: Int) throws -> Json {
         let array = try self.toArray()
         guard array.count > index else {
-            throw JsonParsingError.indexOutOfBounds(index, array.count)
+            throw JsonError.indexOutOfBounds(index, array.count)
         }
         return array[index]
     }
@@ -145,21 +153,21 @@ public extension Json {
             do {
                 return try self.dive(index)
             } catch {
-                Log.error(error)
+                print("Error: \(error)")
                 return Json.null
             }
         }
         set {
             do {
-                Log.warning("Editing Json functionality has not been tested")
+                print("Warning: Editing Json functionality has not been tested")
                 var array = try self.toArray()
                 guard array.count > index else {
-                    throw JsonParsingError.indexOutOfBounds(index, array.count)
+                    throw JsonError.indexOutOfBounds(index, array.count)
                 }
                 // This is useless because it is a struct
                 array[index] = newValue
             } catch {
-                Log.error(error)
+                print("Error: \(error)")
             }
         }
     }
@@ -169,18 +177,18 @@ public extension Json {
             do {
                 return try self.dive(key)
             } catch {
-                Log.error(error)
+                print("Error: \(error)")
                 return Json.null
             }
         }
         set {
             do {
-                Log.warning("Editing Json functionality has not been tested")
+                print("Warning: Editing Json functionality has not been tested")
                 var dictionary = try self.toDictionary()
                 // This is useless because it is a struct
                 dictionary[key] = newValue
             } catch {
-                Log.error(error)
+                print("Error: \(error)")
             }
         }
     }
@@ -224,7 +232,7 @@ public extension Json {
             }
             return array
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .array)
+        throw JsonError.couldNotParseValue(rawValue, .array)
     }
     
     public var array: [Json]? {
@@ -248,7 +256,7 @@ public extension Json {
             }
             return dict
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .dictionary)
+        throw JsonError.couldNotParseValue(rawValue, .dictionary)
     }
     
     public var dictionary: [String : Json]? {
@@ -268,7 +276,7 @@ public extension Json {
         if let value = rawValue as? String {
             return value
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .string)
+        throw JsonError.couldNotParseValue(rawValue, .string)
     }
     
     public var string: String? {
@@ -288,7 +296,7 @@ public extension Json {
         if let value = rawValue as? Int {
             return value
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .int)
+        throw JsonError.couldNotParseValue(rawValue, .int)
     }
     
     public var int: Int? {
@@ -308,7 +316,7 @@ public extension Json {
         if let value = rawValue as? Double {
             return value
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .double)
+        throw JsonError.couldNotParseValue(rawValue, .double)
     }
     
     public var double: Double? {
@@ -328,7 +336,7 @@ public extension Json {
         if let value = rawValue as? Bool {
             return value
         }
-        throw JsonParsingError.couldNotParseValue(rawValue, .bool)
+        throw JsonError.couldNotParseValue(rawValue, .bool)
     }
     
     public var bool: Bool? {
