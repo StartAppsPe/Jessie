@@ -9,9 +9,10 @@
 import Foundation
 
 public enum JsonError: Error {
+    case unsupportedType(String)
     case couldNotParseRawString(String)
     case couldNotParseData
-    case couldNotParseValue(Any, JsonType)
+    case couldNotParseValue(Any, String)
     case indexOutOfBounds(Int, Int)
     case keyNotFound(String)
 }
@@ -114,7 +115,11 @@ public struct Json {
             self.rawValue = rawArray
             return
         }
-        throw JsonError.couldNotParseValue(rawValue, .unknown)
+        if let rawValue = rawValue as? Json {
+            self.rawValue = rawValue.rawValue
+            return
+        }
+        throw JsonError.couldNotParseValue(rawValue, "any")
     }
     
     public init() {
@@ -149,13 +154,13 @@ public protocol JsonRepresentable {
 public protocol JsonConvertible: JsonInitializable, JsonRepresentable {}
 
 
-public enum JsonType: String {
-    case dictionary
-    case array
-    case string
-    case int
-    case double
-    case bool
+public enum JsonType {
+    case dictionary([String: Any])
+    case array([Any])
+    case string(String)
+    case int(Int)
+    case double(Double)
+    case bool(Bool)
     case null
     case unknown
 }
@@ -164,12 +169,12 @@ public extension Json {
     
     public var type: JsonType {
         if rawValue == nil { return .null }
-        if let _ = try? self.toDictionary() { return .dictionary }
-        if let _ = try? self.toArray()      { return .array }
-        if let _ = try? self.toString()     { return .string }
-        if let _ = try? self.toInt()        { return .int }
-        if let _ = try? self.toDouble()     { return .double }
-        if let _ = try? self.toBool()       { return .bool }
+        if let value = try? self.toDictionary() { return .dictionary(value) }
+        if let value = try? self.toArray()      { return .array(value)      }
+        if let value = try? self.toString()     { return .string(value)     }
+        if let value = try? self.toInt()        { return .int(value)        }
+        if let value = try? self.toDouble()     { return .double(value)     }
+        if let value = try? self.toBool()       { return .bool(value)       }
         print("Warning: Unknown Json type detected (\(rawValue))")
         return .unknown
     }
@@ -306,7 +311,7 @@ public extension Json {
     
     public func toRawArray() throws -> [Any] {
         guard let rawArray = rawValue as? [Any] else {
-            throw JsonError.couldNotParseValue(rawValue, .array)
+            throw JsonError.couldNotParseValue(rawValue, "array")
         }
         return rawArray
     }
@@ -345,7 +350,7 @@ public extension Json {
     
     public func toRawDictionary() throws -> [String: Any] {
         guard let rawDict = rawValue as? [String: Any] else {
-            throw JsonError.couldNotParseValue(rawValue, .dictionary)
+            throw JsonError.couldNotParseValue(rawValue, "dictionary")
         }
         return rawDict
     }
@@ -389,7 +394,7 @@ public extension Json {
     
     public func toString() throws -> String {
         guard let value = rawValue as? String else {
-            throw JsonError.couldNotParseValue(rawValue, .string)
+            throw JsonError.couldNotParseValue(rawValue, "string")
         }
         return value
     }
@@ -429,7 +434,7 @@ public extension Json {
     
     public func toInt() throws -> Int {
         guard let value = rawValue as? Int else {
-            throw JsonError.couldNotParseValue(rawValue, .int)
+            throw JsonError.couldNotParseValue(rawValue, "int")
         }
         return value
     }
@@ -460,7 +465,7 @@ public extension Json {
     
     public func toDouble() throws -> Double {
         guard let value = rawValue as? Double else {
-            throw JsonError.couldNotParseValue(rawValue, .double)
+            throw JsonError.couldNotParseValue(rawValue, "double")
         }
         return value
     }
@@ -489,27 +494,16 @@ extension Json: ExpressibleByFloatLiteral {
 public extension Json {
     
     public func toBool() throws -> Bool {
-        print("toBooltoBooltoBooltoBool",1)
         guard let value = rawValue as? Bool else {
-            print("toBooltoBooltoBooltoBool",2)
             guard let intValue = rawValue as? Int else {
-                print("toBooltoBooltoBooltoBool",3)
-                throw JsonError.couldNotParseValue(rawValue, .bool)
+                throw JsonError.couldNotParseValue(rawValue, "bool")
             }
-            print("toBooltoBooltoBooltoBool",4)
             switch intValue {
-            case 0:
-                print("toBooltoBooltoBooltoBool",5)
-                return false
-            case 1:
-                print("toBooltoBooltoBooltoBool",6)
-                return true
-            default:
-                print("toBooltoBooltoBooltoBool",7)
-                throw JsonError.couldNotParseValue(rawValue, .bool)
+            case 0:  return false
+            case 1:  return true
+            default: throw JsonError.couldNotParseValue(rawValue, "bool")
             }
         }
-        print("toBooltoBooltoBooltoBool",8)
         return value
     }
     
