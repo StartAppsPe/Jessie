@@ -94,6 +94,24 @@ class ParseTests: XCTestCase {
         XCTAssertEqual(readValue2, false)
     }
     
+    func testParseWithComplexDictWrite() {
+        var json = try! Json.parse(SampleDictionaryJson)
+        let readValue = json["name"]["last"].string
+        XCTAssertEqual(readValue, "Perry")
+        json["name"]["last"] = "Lanata"
+        let readValue2 = json["name"]["last"].string
+        XCTAssertEqual(readValue2, "Lanata")
+    }
+    
+    func testParseWithComplexArrayWrite() {
+        var json = try! Json.parse(SampleArrayJson)
+        let readValue = json[1]["name"]["last"].string
+        XCTAssertEqual(readValue, "Perry")
+        json[1]["name"]["last"] = "Lanata"
+        let readValue2 = json[1]["name"]["last"].string
+        XCTAssertEqual(readValue2, "Lanata")
+    }
+    
     func testParseWithComplexDictBytes() {
         let data = SampleDictionaryJson.data(using: .utf8)!
         let bytes = [UInt8](data)
