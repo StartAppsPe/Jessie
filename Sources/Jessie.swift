@@ -155,8 +155,8 @@ public protocol JsonConvertible: JsonInitializable, JsonRepresentable {}
 
 
 public enum JsonType {
-    case dictionary([String: Any])
-    case array([Any])
+    case dictionary([String: Json])
+    case array([Json])
     case string(String)
     case int(Int)
     case double(Double)
