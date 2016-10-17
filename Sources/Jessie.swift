@@ -20,43 +20,101 @@ public struct Json {
     
     public let rawValue: Any?
     
-    public init(_ data: Data) throws {
-        self.rawValue = try JSONSerialization.jsonObject(with: data, options: [])
+    public static func parse(_ data: Data) throws -> Json {
+        let rawValue = try JSONSerialization.jsonObject(with: data, options: [])
+        return try Json(rawValue)
     }
     
     public func data(prettyPrinted: Bool = false) throws -> Data {
+        guard let rawValue = rawValue else {
+            return Data()
+        }
+        if let data = (rawValue as? String)?.data(using: .utf8) {
+            return data
+        }
+        if var rawNumber = rawValue as? Int {
+            return Data(bytes: &rawNumber, count: MemoryLayout<Int>.size)
+        }
+        if var rawNumber = rawValue as? Double {
+            return Data(bytes: &rawNumber, count: MemoryLayout<Double>.size)
+        }
+        if var rawBool = rawValue as? Bool {
+            return Data(bytes: &rawBool, count: MemoryLayout<Bool>.size)
+        }
         let options: JSONSerialization.WritingOptions = (prettyPrinted ? [.prettyPrinted] : [] )
         return try JSONSerialization.data(withJSONObject: rawValue, options: options)
     }
     
-    public init(_ bytes: [UInt8]) throws {
+    public static func parse(_ bytes: [UInt8]) throws -> Json {
         let data = Data(bytes)
-        try self.init(data)
+        return try parse(data)
     }
     
     public func bytes() throws -> [UInt8] {
-        let data = try self.data()
+        let data = try self.data(prettyPrinted: false)
         return [UInt8](data)
     }
     
-    public init(rawString: String, enconding: String.Encoding = .utf8) throws {
-        guard let data = rawString.data(using: enconding) else {
-            throw JsonError.couldNotParseRawString(rawString)
+    public static func parse(_ string: String, enconding: String.Encoding = .utf8) throws -> Json {
+        guard let data = string.data(using: enconding) else {
+            throw JsonError.couldNotParseRawString(string)
         }
-        try self.init(data)
+        return try parse(data)
     }
     
     public func rawString(prettyPrinted: Bool = true, enconding: String.Encoding = .utf8) throws -> String {
+        if let rawString = rawValue as? String {
+            return rawString
+        }
+        if let rawNumber = rawValue as? Int {
+            return "\(rawNumber)"
+        }
+        if let rawNumber = rawValue as? Double {
+            return "\(rawNumber)"
+        }
+        if let rawBool = rawValue as? Bool {
+            return "\(rawBool)"
+        }
         let data = try self.data(prettyPrinted: prettyPrinted)
+        guard data.count > 0 else { return "NULL" }
         guard let rawString = String(data: data, encoding: enconding) else {
             throw JsonError.couldNotParseData
         }
         return rawString
     }
     
-    
-    public init(_ rawValue: Any) {
-        self.rawValue = rawValue
+    public init(_ rawValue: Any) throws {
+        if let rawValue = rawValue as? String {
+            self.rawValue = rawValue
+            return
+        }
+        if let rawValue = rawValue as? Int {
+            self.rawValue = rawValue
+            return
+        }
+        if let rawValue = rawValue as? Double {
+            self.rawValue = rawValue
+            return
+        }
+        if let rawValue = rawValue as? Bool {
+            self.rawValue = rawValue
+            return
+        }
+        if let rawDictionary = rawValue as? [String: Any] {
+            for (_, rawValue) in rawDictionary {
+                let _ = try Json(rawValue)
+            }
+            self.rawValue = rawValue
+            return
+        }
+        if let rawArray = rawValue as? [Any] {
+            for rawValue in rawArray {
+                let _ = try Json(rawValue)
+            }
+            self.rawValue = rawArray
+            return
+        }
+        throw JsonError.couldNotParseValue(rawValue, .unknown)
     }
     
     public init() {
@@ -80,6 +138,16 @@ extension Json: CustomStringConvertible {
     }
     
 }
+
+
+public protocol JsonInitializable {
+    init(json: Json) throws
+}
+public protocol JsonRepresentable {
+    func toJson() throws -> Json
+}
+public protocol JsonConvertible: JsonInitializable, JsonRepresentable {}
+
 
 public enum JsonType: String {
     case dictionary
@@ -115,24 +183,24 @@ extension Int: JsonSubscriptable {}
 
 public extension Json {
     
-    public func dive(_ subs: [JsonSubscriptable]) throws -> Json {
+    public func read(_ subs: [JsonSubscriptable]) throws -> Json {
         var json = self
         for sub in subs {
-            json = try json.dive(sub)
+            json = try json.read(sub)
         }
         return json
     }
     
-    public func dive(_ sub: JsonSubscriptable) throws -> Json {
+    public func read(_ sub: JsonSubscriptable) throws -> Json {
         if let key = sub as? String {
-            return try self.dive(key)
+            return try self.read(key)
         } else if let index = sub as? Int {
-            return try self.dive(index)
+            return try self.read(index)
         }
         abort() // Should never get here
     }
     
-    public func dive(_ key: String) throws -> Json {
+    public func read(_ key: String) throws -> Json {
         let dictionary = try self.toDictionary()
         guard let value = dictionary[key] else {
             throw JsonError.keyNotFound(key)
@@ -140,7 +208,7 @@ public extension Json {
         return value
     }
     
-    public func dive(_ index: Int) throws -> Json {
+    public func read(_ index: Int) throws -> Json {
         let array = try self.toArray()
         guard array.count > index else {
             throw JsonError.indexOutOfBounds(index, array.count)
@@ -148,53 +216,65 @@ public extension Json {
         return array[index]
     }
     
+    public mutating func set(_ key: String, value newValue: Json) throws {
+        do {
+            var dictionary = try self.toRawDictionary()
+            dictionary[key] = newValue.rawValue
+            self = try Json(dictionary)
+        } catch {
+            print("Error: \(error)")
+        }
+    }
+    
+    public mutating func set(_ index: Int, value newValue: Json) throws {
+        var array = try self.toRawArray()
+        guard array.count >= index else {
+            throw JsonError.indexOutOfBounds(index, array.count)
+        }
+        if let newValue = newValue.rawValue {
+            if array.count == index {
+                array.append(newValue)
+            } else {
+                array[index] = newValue
+            }
+        } else {
+            guard array.count == index else {
+                throw JsonError.indexOutOfBounds(index, array.count)
+            }
+            array.remove(at: index)
+        }
+        self = try Json(array)
+    }
+    
     public subscript(index: Int) -> Json {
         get {
             do {
-                return try self.dive(index)
+                return try self.read(index)
             } catch {
                 print("Error: \(error)")
                 return Json.null
             }
         }
         set {
-            do {
-                print("Warning: Editing Json functionality has not been tested")
-                var array = try self.toArray()
-                guard array.count > index else {
-                    throw JsonError.indexOutOfBounds(index, array.count)
-                }
-                // This is useless because it is a struct
-                array[index] = newValue
-            } catch {
-                print("Error: \(error)")
-            }
+            try! set(index, value: newValue)
         }
     }
     
     public subscript(key: String) -> Json {
         get {
             do {
-                return try self.dive(key)
+                return try self.read(key)
             } catch {
                 print("Error: \(error)")
                 return Json.null
             }
         }
         set {
-            do {
-                print("Warning: Editing Json functionality has not been tested")
-                var dictionary = try self.toDictionary()
-                // This is useless because it is a struct
-                dictionary[key] = newValue
-            } catch {
-                print("Error: \(error)")
-            }
+            try! set(key, value: newValue)
         }
     }
     
 }
-
 
 
 
@@ -218,21 +298,26 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> Json {
-    return try json.dive(subs).toJson()
+    return try json.read(subs).toJson()
 }
 
 
 public extension Json {
     
-    public func toArray() throws -> [Json] {
-        if let rawArray = rawValue as? [Any] {
-            var array = [Json]()
-            for (value) in rawArray {
-                array.append(Json(value))
-            }
-            return array
+    public func toRawArray() throws -> [Any] {
+        guard let rawArray = rawValue as? [Any] else {
+            throw JsonError.couldNotParseValue(rawValue, .array)
         }
-        throw JsonError.couldNotParseValue(rawValue, .array)
+        return rawArray
+    }
+    
+    public func toArray() throws -> [Json] {
+        let rawArray = try toRawArray()
+        var array = [Json]()
+        for (value) in rawArray {
+            array.append(try Json(value))
+        }
+        return array
     }
     
     public var array: [Json]? {
@@ -242,21 +327,36 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> [Json] {
-    return try json.dive(subs).toArray()
+    return try json.read(subs).toArray()
 }
+
+extension Json: ExpressibleByArrayLiteral {
+    
+    public init(arrayLiteral elements: Any...) {
+        try! self.init(elements)
+    }
+    
+}
+
+
 
 
 public extension Json {
     
-    public func toDictionary() throws -> [String: Json] {
-        if let rawDict = rawValue as? [String: Any] {
-            var dict = [String : Json](minimumCapacity: rawDict.count)
-            for (key, value) in rawDict {
-                dict[key] = Json(value)
-            }
-            return dict
+    public func toRawDictionary() throws -> [String: Any] {
+        guard let rawDict = rawValue as? [String: Any] else {
+            throw JsonError.couldNotParseValue(rawValue, .dictionary)
         }
-        throw JsonError.couldNotParseValue(rawValue, .dictionary)
+        return rawDict
+    }
+    
+    public func toDictionary() throws -> [String: Json] {
+        let rawDict = try toRawDictionary()
+        var dict = [String : Json](minimumCapacity: rawDict.count)
+        for (key, value) in rawDict {
+            dict[key] = try Json(value)
+        }
+        return dict
     }
     
     public var dictionary: [String : Json]? {
@@ -266,17 +366,32 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> [String: Json] {
-    return try json.dive(subs).toDictionary()
+    return try json.read(subs).toDictionary()
 }
+
+extension Json: ExpressibleByDictionaryLiteral {
+    
+    public init(dictionaryLiteral elements: (String, Any)...) {
+        var dictionary = [String : Any](minimumCapacity: elements.count)
+        for element in elements {
+            dictionary[element.0] = element.1
+        }
+        try! self.init(dictionary)
+    }
+    
+}
+
+
+
 
 
 public extension Json {
     
     public func toString() throws -> String {
-        if let value = rawValue as? String {
-            return value
+        guard let value = rawValue as? String else {
+            throw JsonError.couldNotParseValue(rawValue, .string)
         }
-        throw JsonError.couldNotParseValue(rawValue, .string)
+        return value
     }
     
     public var string: String? {
@@ -286,17 +401,37 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> String {
-    return try json.dive(subs).toString()
+    return try json.read(subs).toString()
 }
+
+extension Json: ExpressibleByStringLiteral {
+    
+    public init(stringLiteral value: StringLiteralType) {
+        try! self.init(value as Any)
+    }
+    
+    public init(extendedGraphemeClusterLiteral value: StringLiteralType) {
+        try! self.init(value as Any)
+    }
+    
+    public init(unicodeScalarLiteral value: StringLiteralType) {
+        try! self.init(value as Any)
+    }
+    
+}
+
+
+
+
 
 
 public extension Json {
     
     public func toInt() throws -> Int {
-        if let value = rawValue as? Int {
-            return value
+        guard let value = rawValue as? Int else {
+            throw JsonError.couldNotParseValue(rawValue, .int)
         }
-        throw JsonError.couldNotParseValue(rawValue, .int)
+        return value
     }
     
     public var int: Int? {
@@ -306,17 +441,28 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> Int {
-    return try json.dive(subs).toInt()
+    return try json.read(subs).toInt()
 }
+
+extension Json: ExpressibleByIntegerLiteral {
+    
+    public init(integerLiteral value: IntegerLiteralType) {
+        try! self.init(value as Any)
+    }
+    
+}
+
+
+
 
 
 public extension Json {
     
     public func toDouble() throws -> Double {
-        if let value = rawValue as? Double {
-            return value
+        guard let value = rawValue as? Double else {
+            throw JsonError.couldNotParseValue(rawValue, .double)
         }
-        throw JsonError.couldNotParseValue(rawValue, .double)
+        return value
     }
     
     public var double: Double? {
@@ -326,17 +472,45 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> Double {
-    return try json.dive(subs).toDouble()
+    return try json.read(subs).toDouble()
 }
+
+extension Json: ExpressibleByFloatLiteral {
+    
+    public init(floatLiteral value: FloatLiteralType) {
+        try! self.init(value as Any)
+    }
+    
+}
+
+
 
 
 public extension Json {
     
     public func toBool() throws -> Bool {
-        if let value = rawValue as? Bool {
-            return value
+        print("toBooltoBooltoBooltoBool",1)
+        guard let value = rawValue as? Bool else {
+            print("toBooltoBooltoBooltoBool",2)
+            guard let intValue = rawValue as? Int else {
+                print("toBooltoBooltoBooltoBool",3)
+                throw JsonError.couldNotParseValue(rawValue, .bool)
+            }
+            print("toBooltoBooltoBooltoBool",4)
+            switch intValue {
+            case 0:
+                print("toBooltoBooltoBooltoBool",5)
+                return false
+            case 1:
+                print("toBooltoBooltoBooltoBool",6)
+                return true
+            default:
+                print("toBooltoBooltoBooltoBool",7)
+                throw JsonError.couldNotParseValue(rawValue, .bool)
+            }
         }
-        throw JsonError.couldNotParseValue(rawValue, .bool)
+        print("toBooltoBooltoBooltoBool",8)
+        return value
     }
     
     public var bool: Bool? {
@@ -346,6 +520,14 @@ public extension Json {
 }
 
 public func <~(json: Json, subs: [JsonSubscriptable]) throws -> Bool {
-    return try json.dive(subs).toBool()
+    return try json.read(subs).toBool()
+}
+
+extension Json: ExpressibleByBooleanLiteral {
+    
+    public init(booleanLiteral value: BooleanLiteralType) {
+        try! self.init(value as Any)
+    }
+    
 }
 
