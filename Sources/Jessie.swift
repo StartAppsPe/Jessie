@@ -308,7 +308,28 @@ precedencegroup JsonParsePrecedence {
 infix operator <~ : JsonParsePrecedence
 
 
-public extension Json {
+public func <~<T: JsonInitializable>(json: Json, subs: [JsonSubscriptable]) throws -> T {
+    return try T(json: try json.read(subs).toJson())
+}
+public func <~<T: JsonInitializable>(json: Json, subs: [JsonSubscriptable]) throws -> [T] {
+    return try json.read(subs).toArray().map({ try T(json: $0) })
+}
+public func <~<T: JsonInitializable>(json: Json, subs: [JsonSubscriptable]) throws -> [String: T] {
+    var newDict: [String: T] = [:]
+    let dict = try json.read(subs).toDictionary()
+    for (key, value) in dict {
+        newDict[key] = try T(json: value)
+    }
+    return newDict
+}
+
+
+
+extension Json: JsonConvertible {
+    
+    public init(json: Json) throws {
+        self = json
+    }
     
     public func toJson() throws -> Json {
         return self
