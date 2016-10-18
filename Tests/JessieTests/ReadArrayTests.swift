@@ -34,6 +34,19 @@ class ReadArrayTests: XCTestCase {
         }
     }
     
+    func testReadOperatorWithNilCoalescing() {
+        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let readArray: [Json] = (try? json <~ ["Key1"]) ?? []
+        let readValue = readArray[0].string
+        XCTAssertEqual(readValue, "Value1")
+    }
+    
+    func testReadOperatorWithNilCoalescingFail() {
+        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let readArray: [Json] = (try? json <~ ["Key2"]) ?? []
+        XCTAssertEqual(readArray.count, 0)
+    }
+    
     func testReadFromString() {
         let json = try! Json(["Key1": "Value1"])
         do {
