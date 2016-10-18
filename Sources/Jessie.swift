@@ -303,7 +303,7 @@ public extension Json {
 
 precedencegroup JsonParsePrecedence {
     associativity: left
-    higherThan: AssignmentPrecedence
+    higherThan: BitwiseShiftPrecedence
 }
 infix operator <~ : JsonParsePrecedence
 
