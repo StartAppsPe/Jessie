@@ -153,6 +153,24 @@ public protocol JsonRepresentable {
 }
 public protocol JsonConvertible: JsonInitializable, JsonRepresentable {}
 
+extension Sequence where Iterator.Element: JsonRepresentable {
+    public func toJson() throws -> Json {
+        return try Json(self)
+    }
+}
+extension Sequence where Iterator.Element == JsonRepresentable {
+    public func toJson() throws -> Json {
+        return try Json(self)
+    }
+}
+extension Dictionary where Key: JsonRepresentable, Value: JsonRepresentable {
+    public func toJson() throws -> Json {
+        return try Json(self)
+    }
+}
+
+
+
 
 public enum JsonType {
     case dictionary([String: Json])
