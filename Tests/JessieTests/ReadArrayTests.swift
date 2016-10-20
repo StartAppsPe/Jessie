@@ -24,6 +24,13 @@ class ReadArrayTests: XCTestCase {
         XCTAssertEqual(readValue, "Value1")
     }
     
+    func testReadOperatorOptional() {
+        let json = Json(["Key1": ["Value1", "Value2"]])
+        let readArray: [Json]? = try! json <~ ["Key1"]
+        let readValue = readArray?[0].string
+        XCTAssertEqual(readValue, "Value1")
+    }
+    
     func testReadOperatorFail() {
         let json = Json(["Key1": "Value1"])
         do {

@@ -21,6 +21,12 @@ class ReadStringTests: XCTestCase {
         XCTAssertEqual(readValue, "Value1")
     }
     
+    func testReadOperatorOptional() {
+        let json = Json(["Key1": "Value1"])
+        let readValue: String? = try! json <~ ["Key1"]
+        XCTAssertEqual(readValue, "Value1")
+    }
+    
     func testReadOperatorFail() {
         let json = Json(["Key1": 0])
         do {

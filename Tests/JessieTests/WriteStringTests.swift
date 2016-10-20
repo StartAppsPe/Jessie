@@ -3,6 +3,20 @@ import XCTest
 
 class WriteStringTests: XCTestCase {
     
+    func testCreate() {
+        let value: String = "Value"
+        let json = Json(["key": value])
+        let jsonString = json["key"].rawString(pretty: false)
+        XCTAssertEqual(jsonString, "\"Value\"")
+    }
+    
+    func testCreateWithOptional() {
+        let value: String? = "Value"
+        let json = Json(["key": value])
+        let jsonString = json["key"].rawString(pretty: false)
+        XCTAssertEqual(jsonString, "\"Value\"")
+    }
+    
     func testWriteAppendToDict() {
         var json = Json([:])
         json["Key1"] = "Value1"

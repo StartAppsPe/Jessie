@@ -21,6 +21,12 @@ class ReadBoolTests: XCTestCase {
         XCTAssertEqual(readValue, true)
     }
     
+    func testReadOperatorOptional() {
+        let json = Json(["Key1": true])
+        let readValue: Bool? = try! json <~ ["Key1"]
+        XCTAssertEqual(readValue, true)
+    }
+    
     func testReadOperatorFail() {
         let json = Json(["Key1": "Value1"])
         do {

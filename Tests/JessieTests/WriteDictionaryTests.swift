@@ -3,6 +3,8 @@ import XCTest
 
 class WriteDictionayTests: XCTestCase {
     
+    // TODO: Add creation tests on Swift 3.1
+    
     func testWriteAppendToDict() {
         var json = Json([:])
         json["Key1"] = ["Key2": "Value1"]

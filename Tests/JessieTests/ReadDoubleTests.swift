@@ -21,6 +21,12 @@ class ReadDoubleTests: XCTestCase {
         XCTAssertEqual(readValue, 1.0)
     }
     
+    func testReadOperatorOptional() {
+        let json = Json(["Key1": 1.0])
+        let readValue: Double? = try! json <~ ["Key1"]
+        XCTAssertEqual(readValue, 1.0)
+    }
+    
     func testReadOperatorFail() {
         let json = Json(["Key1": "Value1"])
         do {

@@ -29,10 +29,10 @@ public extension Json {
         self = rawValue.toJson()
     }
     
-    public init (_ rawDictionary: [String: JsonRepresentable]) {
+    public init (_ rawDictionary: [String: JsonRepresentable?]) {
         var dictionary = [String : Json](minimumCapacity: rawDictionary.count)
         for (key, value) in rawDictionary {
-            dictionary[key] = Json(value)
+            dictionary[key] = value?.toJson()
         }
         self = .dictionary(dictionary)
     }

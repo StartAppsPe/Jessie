@@ -24,6 +24,13 @@ class ReadDictionaryTests: XCTestCase {
         XCTAssertEqual(readValue, "Value1")
     }
     
+    func testReadOperatorOptional() {
+        let json = Json(["Key1": ["Key2": "Value1"]])
+        let readDict: [String: Json]? = try! json <~ ["Key1"]
+        let readValue = readDict?["Key2"]?.string
+        XCTAssertEqual(readValue, "Value1")
+    }
+    
     func testReadOperatorFail() {
         let json = Json(["Key1": "Value1"])
         do {

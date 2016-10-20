@@ -36,10 +36,10 @@ public extension Json {
 
 extension Json: ExpressibleByDictionaryLiteral {
     
-    public init(dictionaryLiteral elements: (String, Json)...) {
+    public init(dictionaryLiteral elements: (String, JsonRepresentable?)...) {
         var dictionary = [String : Json](minimumCapacity: elements.count)
-        for element in elements {
-            dictionary[element.0] = element.1
+        for (key, value) in elements {
+            dictionary[key] = value?.toJson()
         }
         self = .dictionary(dictionary)
     }
