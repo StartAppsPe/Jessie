@@ -4,7 +4,7 @@ import XCTest
 class WriteDictionayTests: XCTestCase {
     
     func testWriteAppendToDict() {
-        var json = try! Json([:])
+        var json = Json([:])
         json["Key1"] = ["Key2": "Value1"]
         let readDict = try? json["Key1"].toDictionary()
         let readValue = readDict?["Key2"]?.string
@@ -12,7 +12,7 @@ class WriteDictionayTests: XCTestCase {
     }
     
     func testWriteModifyToDict() {
-        var json = try! Json(["Key1":"OldValue"])
+        var json = Json(["Key1":"OldValue"])
         json["Key1"] = ["Key2": "Value1"]
         let readDict = try? json["Key1"].toDictionary()
         let readValue = readDict?["Key2"]?.string
@@ -20,7 +20,7 @@ class WriteDictionayTests: XCTestCase {
     }
     
     func testWriteAppendToArray() {
-        var json = try! Json([])
+        var json = Json([])
         json[0] = ["Key2": "Value1"]
         let readDict = try? json[0].toDictionary()
         let readValue = readDict?["Key2"]?.string
@@ -28,7 +28,7 @@ class WriteDictionayTests: XCTestCase {
     }
     
     func testWriteModifyToArray() {
-        var json = try! Json(["OldValue"])
+        var json = Json(["OldValue"])
         json[0] = ["Key2": "Value1"]
         let readDict = try? json[0].toDictionary()
         let readValue = readDict?["Key2"]?.string
@@ -36,7 +36,7 @@ class WriteDictionayTests: XCTestCase {
     }
     
     func testComplexWriteToDict() {
-        var json = try! Json([:])
+        var json = Json([:])
         json["Key1"] = [:]
         json["Key1"]["Key2"] = []
         json["Key1"]["Key2"][0] = [:]
@@ -47,7 +47,7 @@ class WriteDictionayTests: XCTestCase {
     }
     
     func testComplexWriteToArray() {
-        var json = try! Json([])
+        var json = Json([])
         json[0] = [:]
         json[0]["Key1"] = []
         json[0]["Key1"][0] = [:]

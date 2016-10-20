@@ -4,25 +4,25 @@ import XCTest
 class ReadBoolTests: XCTestCase {
     
     func testReadSimply() {
-        let json = try! Json(["Key1": true])
+        let json = Json(["Key1": true])
         let readValue = json["Key1"].bool
         XCTAssertEqual(readValue, true)
     }
     
     func testReadSimplyFail() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         let readValue = json["Key1"].bool
         XCTAssertEqual(readValue, nil)
     }
     
     func testReadOperator() {
-        let json = try! Json(["Key1": true])
+        let json = Json(["Key1": true])
         let readValue: Bool = try! json <~ ["Key1"]
         XCTAssertEqual(readValue, true)
     }
     
     func testReadOperatorFail() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         do {
             let _: Bool = try json <~ ["Key1"]
             XCTFail()
@@ -32,7 +32,7 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromString() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -41,8 +41,56 @@ class ReadBoolTests: XCTestCase {
         }
     }
     
-    func testReadFromString2() {
-        let json = try! Json(["Key1": "1"])
+    func testReadFromString2T() {
+        let json = Json(["Key1": "true"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, true)
+    }
+    
+    func testReadFromString2F() {
+        let json = Json(["Key1": "false"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, false)
+    }
+    
+    func testReadFromString3T() {
+        let json = Json(["Key1": "yes"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, true)
+    }
+    
+    func testReadFromString3F() {
+        let json = Json(["Key1": "no"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, false)
+    }
+    
+    func testReadFromString4T() {
+        let json = Json(["Key1": "y"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, true)
+    }
+    
+    func testReadFromString4F() {
+        let json = Json(["Key1": "n"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, false)
+    }
+    
+    func testReadFromString5T() {
+        let json = Json(["Key1": "1"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, true)
+    }
+    
+    func testReadFromString5F() {
+        let json = Json(["Key1": "0"])
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, false)
+    }
+    
+    func testReadFromString5E() {
+        let json = Json(["Key1": "3"])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -52,7 +100,7 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromInt() {
-        let json = try! Json(["Key1": 2])
+        let json = Json(["Key1": 2])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -62,19 +110,19 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromInt2() {
-        let json = try! Json(["Key1": 0])
+        let json = Json(["Key1": 0])
         let readValue = try? json["Key1"].toBool()
         XCTAssertEqual(readValue, false)
     }
     
     func testReadFromInt3() {
-        let json = try! Json(["Key1": 1])
+        let json = Json(["Key1": 1])
         let readValue = try? json["Key1"].toBool()
         XCTAssertEqual(readValue, true)
     }
     
     func testReadFromDouble() {
-        let json = try! Json(["Key1": 1.0])
+        let json = Json(["Key1": 1.0])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -84,7 +132,7 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromDouble2() {
-        let json = try! Json(["Key1": 1.1])
+        let json = Json(["Key1": 1.1])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -94,13 +142,13 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromBool() {
-        let json = try! Json(["Key1": true])
+        let json = Json(["Key1": true])
         let readValue = try? json["Key1"].toBool()
         XCTAssertEqual(readValue, true)
     }
     
     func testReadFromDictionary() {
-        let json = try! Json(["Key1": ["Key2": "Value2"]])
+        let json = Json(["Key1": ["Key2": "Value2"]])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -110,7 +158,7 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromArray() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()
@@ -120,7 +168,7 @@ class ReadBoolTests: XCTestCase {
     }
     
     func testReadFromNull() {
-        let json = try! Json([:])
+        let json = Json([:])
         do {
             let _ = try json["Key1"].toBool()
             XCTFail()

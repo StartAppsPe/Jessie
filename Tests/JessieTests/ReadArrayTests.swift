@@ -4,28 +4,28 @@ import XCTest
 class ReadArrayTests: XCTestCase {
     
     func testReadSimply() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray = json["Key1"].array
         let readValue = readArray?[0].string
         XCTAssertEqual(readValue, "Value1")
     }
     
     func testReadSimplyFail() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         let readArray = json["Key1"].array
         let readValue = readArray?[0].string
         XCTAssertEqual(readValue, nil)
     }
     
     func testReadOperator() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray: [Json] = try! json <~ ["Key1"]
         let readValue = readArray[0].string
         XCTAssertEqual(readValue, "Value1")
     }
     
     func testReadOperatorFail() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         do {
             let _: [Json] = try json <~ ["Key1"]
             XCTFail()
@@ -35,20 +35,20 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadOperatorWithNilCoalescing() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray: [Json] = (try? json <~ ["Key1"]) ?? []
         let readValue = readArray[0].string
         XCTAssertEqual(readValue, "Value1")
     }
     
     func testReadOperatorWithNilCoalescingFail() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray: [Json] = (try? json <~ ["Key2"]) ?? []
         XCTAssertEqual(readArray.count, 0)
     }
     
     func testReadFromString() {
-        let json = try! Json(["Key1": "Value1"])
+        let json = Json(["Key1": "Value1"])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -58,7 +58,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromString2() {
-        let json = try! Json(["Key1": "1"])
+        let json = Json(["Key1": "1"])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -68,7 +68,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromInt() {
-        let json = try! Json(["Key1": 1])
+        let json = Json(["Key1": 1])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -78,7 +78,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromDouble() {
-        let json = try! Json(["Key1": 1.0])
+        let json = Json(["Key1": 1.0])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -88,7 +88,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromDouble2() {
-        let json = try! Json(["Key1": 1.1])
+        let json = Json(["Key1": 1.1])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -98,7 +98,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromBool() {
-        let json = try! Json(["Key1": true])
+        let json = Json(["Key1": true])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -108,7 +108,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromDictionary() {
-        let json = try! Json(["Key1": ["Key2": "Value2"]])
+        let json = Json(["Key1": ["Key2": "Value2"]])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -118,21 +118,21 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadFromArray() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray = try! json["Key1"].toArray()
         let readValue = readArray[0].string
         XCTAssertEqual(readValue, "Value1")
     }
     
     func testReadFromArray2() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readArray = try! json["Key1"].toArray()
         let readValue = readArray[1].string
         XCTAssertEqual(readValue, "Value2")
     }
     
     func testReadFromNull() {
-        let json = try! Json([:])
+        let json = Json([:])
         do {
             let _ = try json["Key1"].toArray()
             XCTFail()
@@ -142,7 +142,7 @@ class ReadArrayTests: XCTestCase {
     }
     
     func testReadOutOfBounds() {
-        let json = try! Json(["Key1": ["Value1", "Value2"]])
+        let json = Json(["Key1": ["Value1", "Value2"]])
         let readValue = json["Key1"][2].string
         XCTAssertEqual(readValue, nil)
     }
