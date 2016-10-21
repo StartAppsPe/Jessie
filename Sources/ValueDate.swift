@@ -1,5 +1,5 @@
 //
-//  JessieDate.swift
+//  ValueDate.swift
 //  Jessie
 //
 //  Created by Gabriel Lanata on 19/10/16.

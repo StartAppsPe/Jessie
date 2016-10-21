@@ -1,5 +1,5 @@
 //
-//  JessieFloat.swift
+//  ValueFloat.swift
 //  Jessie
 //
 //  Created by Gabriel Lanata on 19/10/16.

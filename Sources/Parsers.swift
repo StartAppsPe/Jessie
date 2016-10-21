@@ -52,42 +52,24 @@ public extension Json {
     }
     
     public func rawString(pretty: Bool = true) -> String {
+        let l = (pretty ? "\n" : "")
+        let s = (pretty ? " "  : "")
         switch self {
         case .dictionary(let dictionary):
-            var string = ""
-            if pretty {
-                string += "{"
-                for (key, value) in dictionary {
-                    if string.characters.count > 1 { string += "," }
-                    string += "\n  \"\(key)\": \(value.rawString(pretty: pretty))"
-                }
-                string += "\n}"
-            } else {
-                string += "{"
-                for (key, value) in dictionary {
-                    if string.characters.count > 1 { string += "," }
-                    string += "\"\(key)\":\(value.rawString(pretty: pretty))"
-                }
-                string += "}"
+            var string = "{"
+            for (key, value) in dictionary {
+                if string.characters.count > 1 { string += "," }
+                string += "\(l)\(s)\(s)\"\(key)\":\(s)\(value.rawString(pretty: pretty))"
             }
+            string += "\(l)}"
             return string
         case .array(let array):
-            var string = ""
-            if pretty {
-                string += "["
-                for value in array {
-                    if string.characters.count > 1 { string += "," }
-                    string += "\n  \(value.rawString(pretty: pretty))"
-                }
-                string += "\n]"
-            } else {
-                string += "["
-                for value in array {
-                    if string.characters.count > 1 { string += "," }
-                    string += "\(value.rawString(pretty: pretty))"
-                }
-                string += "]"
+            var string = "["
+            for value in array {
+                if string.characters.count > 1 { string += "," }
+                string += "\(l)\(s)\(s)\(value.rawString(pretty: pretty))"
             }
+            string += "\(l)]"
             return string
         case .string(let value):
             return "\"\(value)\""
@@ -98,7 +80,7 @@ public extension Json {
         case .bool(let value):
             return "\(value)"
         case .null:
-            return "NULL"
+            return "null"
         }
     }
     

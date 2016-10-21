@@ -51,6 +51,17 @@ public extension Json {
     
 }
 
+public extension Json {
+    
+    public var isNull: Bool {
+        switch self {
+        case .null: return true
+        default: return false
+        }
+    }
+    
+}
+
 extension Json: JsonConvertible {
     
     public init(json: Json) throws {

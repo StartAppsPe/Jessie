@@ -1,5 +1,5 @@
 //
-//  JessieArray.swift
+//  ValueArray.swift
 //  Jessie
 //
 //  Created by Gabriel Lanata on 19/10/16.
