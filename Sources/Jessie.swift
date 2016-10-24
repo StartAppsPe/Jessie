@@ -29,23 +29,23 @@ public extension Json {
         self = rawValue.toJson()
     }
     
-    public init (_ rawDictionary: [String: JsonRepresentable?]) {
+    public init(_ rawDictionary: [String: JsonRepresentable?]) {
         var dictionary = [String : Json](minimumCapacity: rawDictionary.count)
         for (key, value) in rawDictionary {
-            dictionary[key] = value?.toJson()
+            dictionary[key] = value?.toJson() ?? .null
         }
         self = .dictionary(dictionary)
     }
     
-    public init (_ rawDictionary: [String: Json]) {
+    public init(_ rawDictionary: [String: Json]) {
         self = .dictionary(rawDictionary)
     }
     
-    public init (_ rawArray: [JsonRepresentable]) {
+    public init(_ rawArray: [JsonRepresentable]) {
         self = .array(rawArray.map({ Json($0) }))
     }
     
-    public init (_ rawArray: [Json]) {
+    public init(_ rawArray: [Json]) {
         self = .array(rawArray)
     }
     

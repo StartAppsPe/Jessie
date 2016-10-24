@@ -39,7 +39,7 @@ extension Json: ExpressibleByDictionaryLiteral {
     public init(dictionaryLiteral elements: (String, JsonRepresentable?)...) {
         var dictionary = [String : Json](minimumCapacity: elements.count)
         for (key, value) in elements {
-            dictionary[key] = value?.toJson()
+            dictionary[key] = value?.toJson() ?? .null
         }
         self = .dictionary(dictionary)
     }
