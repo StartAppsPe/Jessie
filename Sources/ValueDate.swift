@@ -11,7 +11,7 @@ import Foundation
 extension Date: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .string(string) = json else {
+        guard case let .string(string) = try json.parsed() else {
             throw JsonError.couldNotParseValue(json, "date")
         }
         guard let value = Json.dateFormatter.date(from: string) else {

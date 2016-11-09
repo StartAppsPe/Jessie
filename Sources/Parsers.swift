@@ -28,33 +28,48 @@ public extension Json {
     }
     
     public static func parse(any: Any) throws -> Json {
-        if let rawDictionary = any as? [String: Any] {
-            var dictionary: [String: Json] = [:]
-            for (key, value) in rawDictionary {
-                dictionary[key] = try parse(any: value)
+        return .unparsed(any)
+    }
+    
+    public mutating func parse() throws {
+        self = try self.parsed()
+    }
+    
+    public func parsed() throws -> Json {
+        switch self {
+        case .unparsed(let any):
+            if let rawDictionary = any as? [String: Any] {
+                var dictionary: [String: Json] = [:]
+                for (key, value) in rawDictionary {
+                    dictionary[key] = .unparsed(value)
+                }
+                return .dictionary(dictionary)
+            } else if let rawArray = any as? [Any] {
+                let array: [Json] = rawArray.map({ .unparsed($0) })
+                return .array(array)
+            } else if let rawValue = any as? String {
+                return .string(rawValue)
+            } else if let rawValue = any as? Int {
+                return .int(rawValue)
+            } else if let rawValue = any as? Double {
+                return .double(rawValue)
+            } else if let rawValue = any as? Bool {
+                return .bool(rawValue)
+            } else if let rawValue = any as? JsonRepresentable {
+                return Json(rawValue)
             }
-            return .dictionary(dictionary)
-        } else if let rawArray = any as? [Any] {
-            let array = try rawArray.map({ try parse(any: $0) })
-            return .array(array)
-        } else if let rawValue = any as? String {
-            return .string(rawValue)
-        } else if let rawValue = any as? Int {
-            return .int(rawValue)
-        } else if let rawValue = any as? Double {
-            return .double(rawValue)
-        } else if let rawValue = any as? Bool {
-            return .bool(rawValue)
-        } else if let rawValue = any as? JsonRepresentable {
-            return Json(rawValue)
+            throw JsonError.couldNotParseValue(any, "any")
+        default:
+            return self
         }
-        throw JsonError.couldNotParseValue(any, "any")
     }
     
     public func rawString(pretty: Bool = true) -> String {
         let l = (pretty ? "\n" : "")
         let s = (pretty ? " "  : "")
         switch self {
+        case .unparsed(_):
+            return try! self.parsed().rawString(pretty: pretty)
         case .dictionary(let dictionary):
             var string = "{"
             for (key, value) in dictionary {

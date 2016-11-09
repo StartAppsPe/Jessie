@@ -10,6 +10,7 @@ typealias JSON = Json
 typealias Jessie = Json
 
 public enum Json {
+    case unparsed(Any)
     case dictionary([String: Json])
     case array([Json])
     case string(String)
@@ -56,6 +57,13 @@ public extension Json {
     public var isNull: Bool {
         switch self {
         case .null: return true
+        default: return false
+        }
+    }
+    
+    public var isUnparsed: Bool {
+        switch self {
+        case .unparsed(_): return true
         default: return false
         }
     }

@@ -22,7 +22,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: JsonRepresent
 public extension Json {
     
     public func toDictionary() throws -> [String: Json] {
-        guard case let .dictionary(value) = self else {
+        guard case let .dictionary(value) = try self.parsed() else {
             throw JsonError.couldNotParseValue(self, "dictionary")
         }
         return value

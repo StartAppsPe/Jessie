@@ -31,8 +31,9 @@ public extension Json {
     }
     
     public func get(_ key: String) throws -> Json {
-        guard case let .dictionary(dictionary) = self else {
-            throw JsonError.jsonIsNotADictionary(self)
+        let json = try self.parsed()
+        guard case let .dictionary(dictionary) = json else {
+            throw JsonError.jsonIsNotADictionary(json)
         }
         guard let value = dictionary[key] else {
             throw JsonError.keyNotFound(key)
@@ -41,8 +42,9 @@ public extension Json {
     }
     
     public func get(_ index: Int) throws -> Json {
-        guard case let .array(array) = self else {
-            throw JsonError.jsonIsNotAnArray(self)
+        let json = try self.parsed()
+        guard case let .array(array) = json else {
+            throw JsonError.jsonIsNotAnArray(json)
         }
         guard array.count > index else {
             throw JsonError.indexOutOfBounds(index, array.count)
@@ -51,16 +53,18 @@ public extension Json {
     }
     
     public mutating func set(_ key: String, value newValue: Json?) throws {
-        guard case var .dictionary(dictionary) = self else {
-            throw JsonError.jsonIsNotADictionary(self)
+        let json = try self.parsed()
+        guard case var .dictionary(dictionary) = json else {
+            throw JsonError.jsonIsNotADictionary(json)
         }
         dictionary[key] = newValue
         self = .dictionary(dictionary)
     }
     
     public mutating func set(_ index: Int, value newValue: Json?) throws {
-        guard case var .array(array) = self else {
-            throw JsonError.jsonIsNotAnArray(self)
+        let json = try self.parsed()
+        guard case var .array(array) = json else {
+            throw JsonError.jsonIsNotAnArray(json)
         }
         guard array.count >= index else {
             throw JsonError.indexOutOfBounds(index, array.count)

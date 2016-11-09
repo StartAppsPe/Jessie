@@ -25,7 +25,7 @@ extension Sequence where Iterator.Element == JsonRepresentable {
 public extension Json {
     
     public func toArray() throws -> [Json] {
-        guard case let .array(value) = self else {
+        guard case let .array(value) = try self.parsed() else {
             throw JsonError.couldNotParseValue(self, "array")
         }
         return value

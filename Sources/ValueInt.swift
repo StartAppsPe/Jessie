@@ -9,7 +9,7 @@
 extension Int: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .int(value) = json else {
+        guard case let .int(value) = try json.parsed() else {
             throw JsonError.couldNotParseValue(json, "int")
         }
         self = value

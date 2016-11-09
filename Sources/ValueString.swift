@@ -9,7 +9,7 @@
 extension String: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .string(value) = json else {
+        guard case let .string(value) = try json.parsed() else {
             throw JsonError.couldNotParseValue(json, "string")
         }
         self = value

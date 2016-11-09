@@ -6,7 +6,7 @@ class CreateTests: XCTestCase {
     func testCreateWithNull() {
         let json = Json()
         let jsonString = json.rawString(pretty: false)
-        XCTAssertEqual(jsonString, "NULL")
+        XCTAssertEqual(jsonString, "null")
     }
     
     func testCreateWithEmptyArray() {

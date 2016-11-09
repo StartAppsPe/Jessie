@@ -9,7 +9,7 @@
 extension Bool: JsonConvertible {
     
     public init(json: Json) throws {
-        switch json {
+        switch try json.parsed() {
         case .bool(let value):
             self = value
             return

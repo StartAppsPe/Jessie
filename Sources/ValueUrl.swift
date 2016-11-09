@@ -11,7 +11,7 @@ import Foundation
 extension URL: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .string(string) = json else {
+        guard case let .string(string) = try json.parsed() else {
             throw JsonError.couldNotParseValue(json, "url")
         }
         guard let value = URL(string: string) else {

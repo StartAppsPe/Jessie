@@ -9,7 +9,7 @@
 extension Double: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .double(value) = json else {
+        guard case let .double(value) = try json.parsed() else {
             throw JsonError.couldNotParseValue(json, "double")
         }
         self = value
