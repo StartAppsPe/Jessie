@@ -47,6 +47,8 @@ public extension Json {
             return .bool(rawValue)
         } else if let rawValue = any as? JsonRepresentable {
             return Json(rawValue)
+        } else if any is NSNull {
+            return .null
         }
         throw JsonError.couldNotParseValue(any, "any")
     }

@@ -48,6 +48,15 @@ class ParseTests: XCTestCase {
         XCTAssertEqual(readValue, "Value1")
     }
     
+    func testParseWithSimpleDictStringWithoutQuotes() {
+        do {
+            let _ = try Json.parse(string: "{Key1:\"Value1\"}")
+            XCTFail()
+        } catch {
+            // Correctly caught
+        }
+    }
+    
     func testParseWithSimpleArrayString() {
         let json = try! Json.parse(string: "[\"Value1\",\"Value2\"]")
         let readValue = json[0].string
@@ -77,6 +86,12 @@ class ParseTests: XCTestCase {
         let json = try! Json.parse(string: "[true,true]")
         let readValue = json[0].bool
         XCTAssertEqual(readValue, true)
+    }
+    
+    func testParseWithNull() {
+        let json = try! Json.parse(string: "{\"Key1\": \"Value1\", \"Key2\": null}")
+        let readValue = json["Key1"].string
+        XCTAssertEqual(readValue, "Value1")
     }
     
     func testParseWithComplexDict() {
