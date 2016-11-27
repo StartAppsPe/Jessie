@@ -45,10 +45,10 @@ public extension Json {
             return .double(rawValue)
         } else if let rawValue = any as? Bool {
             return .bool(rawValue)
-        } else if let rawValue = any as? JsonRepresentable {
-            return Json(rawValue)
         } else if let _ = any as? NSNull {
             return .null
+        } else if let rawValue = any as? JsonRepresentable {
+            return Json(rawValue)
         }
         throw JsonError.couldNotParseValue(any, "any")
     }
