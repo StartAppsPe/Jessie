@@ -15,7 +15,7 @@ extension Float: JsonConvertible {
     }
     
     public func toJson() -> Json {
-        return .number(self as NSNumber)
+        return .number(NSNumber(value: self))
     }
     
 }

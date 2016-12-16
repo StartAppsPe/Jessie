@@ -18,7 +18,7 @@ extension Double: JsonConvertible {
     }
     
     public func toJson() -> Json {
-        return .number(self as NSNumber)
+        return .number(NSNumber(value: self))
     }
     
 }
@@ -38,7 +38,7 @@ public extension Json {
 extension Json: ExpressibleByFloatLiteral {
     
     public init(floatLiteral value: FloatLiteralType) {
-        self = .number(value as NSNumber)
+        self = .number(NSNumber(value: value))
     }
     
 }
