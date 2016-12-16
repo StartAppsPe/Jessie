@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 typealias JSON = Json
 typealias Jessie = Json
 
@@ -13,8 +15,7 @@ public enum Json {
     case dictionary([String: Json])
     case array([Json])
     case string(String)
-    case int(Int)
-    case double(Double)
+    case number(NSNumber)
     case bool(Bool)
     case null
 }

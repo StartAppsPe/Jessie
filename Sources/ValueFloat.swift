@@ -6,6 +6,8 @@
 //
 //
 
+import Foundation
+
 extension Float: JsonConvertible {
     
     public init(json: Json) throws {
@@ -13,7 +15,7 @@ extension Float: JsonConvertible {
     }
     
     public func toJson() -> Json {
-        return .double(Double(self))
+        return .number(self as NSNumber)
     }
     
 }

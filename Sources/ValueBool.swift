@@ -13,11 +13,11 @@ extension Bool: JsonConvertible {
         case .bool(let value):
             self = value
             return
-        case .int(let int):
-            if int == 1 {
+        case .number(let value):
+            if value == 1 {
                 self = true
                 return
-            } else if int == 0 {
+            } else if value == 0 {
                 self = false
                 return
             }

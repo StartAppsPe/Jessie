@@ -6,17 +6,19 @@
 //
 //
 
+import Foundation
+
 extension Double: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .double(value) = json else {
+        guard case let .number(value) = json else {
             throw JsonError.couldNotParseValue(json, "double")
         }
-        self = value
+        self = value.doubleValue
     }
     
     public func toJson() -> Json {
-        return .double(self)
+        return .number(self as NSNumber)
     }
     
 }
@@ -36,7 +38,7 @@ public extension Json {
 extension Json: ExpressibleByFloatLiteral {
     
     public init(floatLiteral value: FloatLiteralType) {
-        self = .double(value)
+        self = .number(value as NSNumber)
     }
     
 }

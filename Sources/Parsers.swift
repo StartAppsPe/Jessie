@@ -39,10 +39,12 @@ public extension Json {
             return .array(array)
         } else if let rawValue = any as? String {
             return .string(rawValue)
-        } else if let rawValue = any as? Int {
-            return .int(rawValue)
-        } else if let rawValue = any as? Double {
-            return .double(rawValue)
+        } else if let rawValue = any as? NSNumber {
+            if rawValue.isBool {
+                return .bool(rawValue.boolValue)
+            } else {
+                return .number(rawValue)
+            }
         } else if let rawValue = any as? Bool {
             return .bool(rawValue)
         } else if let _ = any as? NSNull {
@@ -75,9 +77,7 @@ public extension Json {
             return string
         case .string(let value):
             return "\"\(value)\""
-        case .int(let value):
-            return "\(value)"
-        case .double(let value):
+        case .number(let value):
             return "\(value)"
         case .bool(let value):
             return "\(value)"
@@ -99,4 +99,12 @@ public extension Json {
         return [UInt8](data)
     }
     
+}
+
+extension NSNumber {
+    
+    var isBool: Bool {
+        return type(of: self) == type(of: NSNumber(value: true))
+    }
+
 }

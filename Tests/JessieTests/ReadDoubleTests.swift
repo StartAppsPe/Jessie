@@ -59,12 +59,8 @@ class ReadDoubleTests: XCTestCase {
     
     func testReadFromInt() {
         let json = Json(["Key1": 1])
-        do {
-            let _ = try json["Key1"].toDouble()
-            XCTFail()
-        } catch {
-            // Correctly caught
-        }
+        let readValue = try? json["Key1"].toDouble()
+        XCTAssertEqual(readValue, 1.0)
     }
     
     func testReadFromDouble() {

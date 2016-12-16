@@ -129,12 +129,8 @@ class ReadBoolTests: XCTestCase {
     
     func testReadFromDouble() {
         let json = Json(["Key1": 1.0])
-        do {
-            let _ = try json["Key1"].toBool()
-            XCTFail()
-        } catch {
-            // Correctly caught
-        }
+        let readValue = try? json["Key1"].toBool()
+        XCTAssertEqual(readValue, true)
     }
     
     func testReadFromDouble2() {

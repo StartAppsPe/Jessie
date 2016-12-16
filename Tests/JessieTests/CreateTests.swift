@@ -66,13 +66,13 @@ class CreateTests: XCTestCase {
     func testCreateWithZeroDouble() {
         let json = Json(0.0)
         let jsonString = json.rawString(pretty: false)
-        XCTAssertEqual(jsonString, "0.0")
+        XCTAssertEqual(jsonString, "0")
     }
     
     func testCreateWithDouble() {
         let json = Json(1.0)
         let jsonString = json.rawString(pretty: false)
-        XCTAssertEqual(jsonString, "1.0")
+        XCTAssertEqual(jsonString, "1")
     }
     
     func testCreateWithZeroDouble2() {

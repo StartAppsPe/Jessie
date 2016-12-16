@@ -65,22 +65,20 @@ class ReadIntTests: XCTestCase {
     
     func testReadFromDouble() {
         let json = Json(["Key1": 1.0])
-        do {
-            let _ = try json["Key1"].toInt()
-            XCTFail()
-        } catch {
-            // Correctly caught
-        }
+        let readValue = try? json["Key1"].toInt()
+        XCTAssertEqual(readValue, 1)
     }
     
     func testReadFromDouble2() {
         let json = Json(["Key1": 1.1])
-        do {
-            let _ = try json["Key1"].toInt()
-            XCTFail()
-        } catch {
-            // Correctly caught
-        }
+        let readValue = try? json["Key1"].toInt()
+        XCTAssertEqual(readValue, 1)
+    }
+    
+    func testReadFromDouble3() {
+        let json = Json(["Key1": 1.9])
+        let readValue = try? json["Key1"].toInt()
+        XCTAssertEqual(readValue, 1)
     }
     
     func testReadFromBool() {

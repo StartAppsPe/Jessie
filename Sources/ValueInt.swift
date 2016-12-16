@@ -6,17 +6,19 @@
 //
 //
 
+import Foundation
+
 extension Int: JsonConvertible {
     
     public init(json: Json) throws {
-        guard case let .int(value) = json else {
+        guard case let .number(value) = json else {
             throw JsonError.couldNotParseValue(json, "int")
         }
-        self = value
+        self = value.intValue
     }
     
     public func toJson() -> Json {
-        return .int(self)
+        return .number(self as NSNumber)
     }
     
 }
@@ -36,7 +38,7 @@ public extension Json {
 extension Json: ExpressibleByIntegerLiteral {
     
     public init(integerLiteral value: IntegerLiteralType) {
-        self = .int(value)
+        self = .number(value as NSNumber)
     }
     
 }
@@ -48,7 +50,7 @@ extension Int64: JsonConvertible {
         self = Int64(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -57,7 +59,7 @@ extension Int32: JsonConvertible {
         self = Int32(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -66,7 +68,7 @@ extension Int16: JsonConvertible {
         self = Int16(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -75,7 +77,7 @@ extension Int8: JsonConvertible {
         self = Int8(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -84,7 +86,7 @@ extension UInt64: JsonConvertible {
         self = UInt64(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -93,7 +95,7 @@ extension UInt32: JsonConvertible {
         self = UInt32(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -102,7 +104,7 @@ extension UInt16: JsonConvertible {
         self = UInt16(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
 
@@ -111,6 +113,6 @@ extension UInt8: JsonConvertible {
         self = UInt8(try Int(json: json))
     }
     public func toJson() -> Json {
-        return .int(Int(self))
+        return .number(self as NSNumber)
     }
 }
