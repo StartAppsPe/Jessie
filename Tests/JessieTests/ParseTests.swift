@@ -94,6 +94,12 @@ class ParseTests: XCTestCase {
         XCTAssertEqual(readValue, "Value1")
     }
     
+    func testParseWithNull2() {
+        let json = try! Json.parse(string: "{\"Key1\": \"Value1\", \"Key2\": null}")
+        let readValue = json["Key2"].string
+        XCTAssertEqual(readValue, nil)
+    }
+    
     func testParseWithComplexDict() {
         let json = try! Json.parse(string: SampleDictionaryJson)
         let readValue = json["name"]["last"].string
