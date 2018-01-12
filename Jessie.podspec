@@ -2,7 +2,7 @@
 Pod::Spec.new do |s|
 
 s.name             = 'Jessie'
-s.version          = '2.6.1'
+s.version          = '2.6.2'
 s.summary          = 'A simple JSON parsing library designed for swift. It is type safe and simple to use.'
 s.description      = <<-DESC
 A simple JSON parsing library designed for swift. Inspired by the simplicity of SwiftyJSON but with type safe methods.
