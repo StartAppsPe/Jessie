@@ -38,19 +38,14 @@ public extension Json {
     
 }
 
-
-private var _jsonDateFormatter: DateFormatter?
-
 public extension Json {
     
     // Defaults to ISO standard date
-    public static var dateFormatter: DateFormatter {
-        if _jsonDateFormatter == nil {
-            _jsonDateFormatter = DateFormatter()
-            _jsonDateFormatter!.locale = Locale(identifier: "en_US_POSIX")
-            _jsonDateFormatter!.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
-        }
-        return _jsonDateFormatter!
-    }
+    public static var dateFormatter: DateFormatter  = {
+        let _jsonDateFormatter = DateFormatter()
+        _jsonDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        _jsonDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ" //"yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+        return _jsonDateFormatter
+    }()
     
 }
