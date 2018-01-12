@@ -62,7 +62,7 @@ public extension Json {
         case .dictionary(let dictionary):
             var string = "{"
             for (key, value) in dictionary {
-                if string.characters.count > 1 { string += "," }
+                if string.count > 1 { string += "," }
                 string += "\(l)\(s)\(s)\"\(key)\":\(s)\(value.rawString(pretty: pretty))"
             }
             string += "\(l)}"
@@ -70,7 +70,7 @@ public extension Json {
         case .array(let array):
             var string = "["
             for value in array {
-                if string.characters.count > 1 { string += "," }
+                if string.count > 1 { string += "," }
                 string += "\(l)\(s)\(s)\(value.rawString(pretty: pretty))"
             }
             string += "\(l)]"
